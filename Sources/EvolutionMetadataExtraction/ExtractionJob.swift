@@ -41,6 +41,7 @@ public struct ExtractionJob: Sendable {
         let extractionDate: Date
     }
 
+    let project: Project
     let proposalSpecs: [ProposalSpec]
     let previousResults: EvolutionMetadata?
     let forcedExtractionIDs: [String]
@@ -48,7 +49,8 @@ public struct ExtractionJob: Sendable {
     let output: Output
     let snapshot: Snapshot?
 
-    private init(output: Output, snapshot: Snapshot?, proposalSpecs: [ProposalSpec], previousResults: EvolutionMetadata?, forcedExtractionIDs: [String], jobMetadata: JobMetadata) {
+    private init(project: Project, output: Output, snapshot: Snapshot?, proposalSpecs: [ProposalSpec], previousResults: EvolutionMetadata?, forcedExtractionIDs: [String], jobMetadata: JobMetadata) {
+        self.project = project
         self.proposalSpecs = proposalSpecs
         self.previousResults = previousResults
         self.forcedExtractionIDs = forcedExtractionIDs
@@ -69,12 +71,12 @@ public struct ExtractionJob: Sendable {
 
     }
     
-    public static func makeExtractionJob(from source: Source, output: Output, ignorePreviousResults: Bool = false, forcedExtractionIDs: [String] = [], toolVersion: String = ToolVersion.version, extractionDate: Date = Date()) async throws -> ExtractionJob {
+    public static func makeExtractionJob(project: Project = Project.default, source: Source, output: Output, ignorePreviousResults: Bool = false, forcedExtractionIDs: [String] = [], toolVersion: String = ToolVersion.version, extractionDate: Date = Date()) async throws -> ExtractionJob {
         switch source {
             case .network:
-                try await makeNetworkExtractionJob(source: source, output: output, ignorePreviousResults: ignorePreviousResults, forcedExtractionIDs: forcedExtractionIDs, toolVersion: toolVersion, extractionDate: extractionDate)
+                try await makeNetworkExtractionJob(project: project, source: source, output: output, ignorePreviousResults: ignorePreviousResults, forcedExtractionIDs: forcedExtractionIDs, toolVersion: toolVersion, extractionDate: extractionDate)
             case .snapshot:
-                try makeSnapshotExtractionJob(source: source, output: output, ignorePreviousResults: ignorePreviousResults, forcedExtractionIDs: forcedExtractionIDs, toolVersion: toolVersion, extractionDate: extractionDate)
+                try makeSnapshotExtractionJob(project: project, source: source, output: output, ignorePreviousResults: ignorePreviousResults, forcedExtractionIDs: forcedExtractionIDs, toolVersion: toolVersion, extractionDate: extractionDate)
         }
     }
 }
@@ -83,7 +85,7 @@ public struct ExtractionJob: Sendable {
 
 extension ExtractionJob {
     
-    private static func makeNetworkExtractionJob(source: Source, output: Output, ignorePreviousResults: Bool, forcedExtractionIDs: [String], toolVersion: String, extractionDate: Date) async throws -> ExtractionJob {
+    private static func makeNetworkExtractionJob(project: Project, source: Source, output: Output, ignorePreviousResults: Bool, forcedExtractionIDs: [String], toolVersion: String, extractionDate: Date) async throws -> ExtractionJob {
         
         assert(source == .network, "makeNetworkExtractionJob() requires network source")
         
@@ -108,10 +110,10 @@ extension ExtractionJob {
             snapshot = nil
         }
 
-        return ExtractionJob(output: output, snapshot: snapshot, proposalSpecs: proposalSpecs, previousResults: try await previousResults, forcedExtractionIDs: forcedExtractionIDs, jobMetadata: jobMetadata)
+        return ExtractionJob(project: project, output: output, snapshot: snapshot, proposalSpecs: proposalSpecs, previousResults: try await previousResults, forcedExtractionIDs: forcedExtractionIDs, jobMetadata: jobMetadata)
     }
     
-    private static func makeSnapshotExtractionJob(source: Source, output: Output, ignorePreviousResults: Bool, forcedExtractionIDs: [String], toolVersion: String, extractionDate: Date) throws -> ExtractionJob {
+    private static func makeSnapshotExtractionJob(project: Project, source: Source, output: Output, ignorePreviousResults: Bool, forcedExtractionIDs: [String], toolVersion: String, extractionDate: Date) throws -> ExtractionJob {
         
         guard case let .snapshot(snapshotURL) = source else {
             fatalError("makeSnapshotExtractionJob() requires snapshot source")
@@ -127,7 +129,7 @@ extension ExtractionJob {
         let jobMetadata = JobMetadata(toolVersion: toolVersion, commit: sourceSnapshot.branchInfo?.commit.sha, extractionDate: sourceSnapshot.snapshotDate)
                 
         // Always use sourceSnapshot, its values are used in tests
-        return ExtractionJob(output: output, snapshot: sourceSnapshot, proposalSpecs: sourceSnapshot.proposalSpecs, previousResults: sourceSnapshot.previousResults, forcedExtractionIDs: forcedExtractionIDs, jobMetadata: jobMetadata)
+        return ExtractionJob(project: project, output: output, snapshot: sourceSnapshot, proposalSpecs: sourceSnapshot.proposalSpecs, previousResults: sourceSnapshot.previousResults, forcedExtractionIDs: forcedExtractionIDs, jobMetadata: jobMetadata)
     }
 }
 
