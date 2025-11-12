@@ -49,7 +49,7 @@ struct ProposalMetadataExtractor {
         
         if let headerFieldsByLabel = extractValue(from: document, with: HeaderFieldExtractor.self) {
             
-            let proposalLink = extractValue(from: headerFieldsByLabel, with: ProposalLinkExtractor.self)
+            let proposalLink = extractValue(from: (headerFieldsByLabel, proposalSpec.project.proposalRegex), with: ProposalLinkExtractor.self)
             proposal.id = proposalLink?.text ?? ""
             proposal.link = proposalLink?.destination ?? ""
             /* VALIDATION ENHANCEMENT: Probably also want to validate that the destination link matches the passed-in filename and the id matches the proposalID field */

@@ -16,8 +16,8 @@ struct ProposalLinkExtractor: MarkupWalker, ValueExtractor {
     private var warnings: [Proposal.Issue] = []
     private var errors: [Proposal.Issue] = []
     
-    mutating func extractValue(from headerFieldsByLabel: [String : ListItem]) -> ExtractionResult<LinkInfo> {
-        if let headerField = headerFieldsByLabel["Proposal"] {
+    mutating func extractValue(from sourceValues: (headerFieldsByLabel: [String : ListItem], regex: Regex<Substring>)) -> ExtractionResult<LinkInfo> {
+        if let headerField = sourceValues.headerFieldsByLabel["Proposal"] {
             visit(headerField)
         } else {
             errors.append(.missingProposalIDLink)
@@ -36,7 +36,7 @@ struct ProposalLinkExtractor: MarkupWalker, ValueExtractor {
                     errors.append(.reservedProposalID)
                 }
                 
-                if !proposalLink.text.contains(/^SE-\d\d\d\d$/) {
+                if !proposalLink.text.contains(sourceValues.regex) {
                     self.proposalLink?.destination = "" // Do not include an incorrect destination
                     errors.append(.proposalIDWrongDigitCount)
                 }
