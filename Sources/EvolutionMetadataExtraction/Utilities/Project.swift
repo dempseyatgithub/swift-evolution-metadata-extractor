@@ -40,10 +40,10 @@ public final class Project: Sendable {
     }
     
     public static var `default`: Project {
-        swiftProject
+        swift
     }
     
-    public static let swiftProject = Project(
+    public static let swift = Project(
         name: "Swift",
         organization: "swiftlang",
         repository: "swift-evolution",
@@ -54,7 +54,7 @@ public final class Project: Sendable {
         defaultOutputFilename: "evolution.json"
     )
     
-    public static let swiftTestingProject = Project(
+    public static let swiftTesting = Project(
         name: "Swift Testing",
         organization: "swiftlang",
         repository: "swift-evolution",
@@ -65,7 +65,7 @@ public final class Project: Sendable {
         defaultOutputFilename: "testing-evolution.json"
     )
     
-    public static let foundationProject = Project(
+    public static let foundation = Project(
         name: "Foundation",
         organization: "swiftlang",
         repository: "swift-foundation",
