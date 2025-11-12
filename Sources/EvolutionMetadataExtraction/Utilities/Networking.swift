@@ -12,10 +12,8 @@ import EvolutionMetadataModel
 
 struct PreviousResultsFetcher {
     
-    static let previousResultsURL = URL(string: "https://download.swift.org/swift-evolution/v1/evolution.json")!
-    
-    static func fetchPreviousResults() async throws -> EvolutionMetadata {
-        let request = URLRequest(url: previousResultsURL, cachePolicy: .reloadIgnoringLocalCacheData)
+    static func fetchPreviousResults(for project: Project) async throws -> EvolutionMetadata {
+        let request = URLRequest(url: project.previousResultsURL, cachePolicy: .reloadIgnoringLocalCacheData)
         verbosePrint("Fetching with URLRequest:\n\(request.verboseDescription)")
         do {
             let (data, _) = try await URLSession.customized.data(for: request)
@@ -119,17 +117,17 @@ struct GitHubFetcher {
         return String(decoding: data, as: UTF8.self)
     }
         
-    static func fetchMainBranch() async throws -> GitHubBranch {
+    static func fetchMainBranch(for project: Project) async throws -> GitHubBranch {
         // Always reload since a new commit may have occurred.
         // Caching for other calls is fine since the branch commit SHA is included in the requested URL
-        let branchInfo = try await getGitHubAPIValue(for: Endpoint.githubMainBranchEndpoint, type: GitHubBranch.self, cachePolicy: .reloadIgnoringLocalCacheData)
+        let branchInfo = try await getGitHubAPIValue(for: project.mainBranchEndpoint, type: GitHubBranch.self, cachePolicy: .reloadIgnoringLocalCacheData)
         return branchInfo
     }
     
     // Returns only content items that are Markdown files in the /proposals directory of the repo.
     // Filters out subdirectories and files without ".md" suffix.
-    static func fetchProposalContentItems(for reference: String? = nil) async throws -> [GitHubContentItem] {
-        var endpoint = Endpoint.githubProposalsEndpoint
+    static func fetchProposalContentItems(for project: Project, sha reference: String? = nil) async throws -> [GitHubContentItem] {
+        var endpoint = project.proposalListingEndpoint
         if let reference {
             endpoint.append(queryItems: [URLQueryItem(name: "ref", value: reference)])
         }

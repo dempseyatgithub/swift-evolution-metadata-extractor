@@ -89,9 +89,9 @@ extension ExtractionJob {
         
         assert(source == .network, "makeNetworkExtractionJob() requires network source")
         
-        async let previousResults = ignorePreviousResults ? nil : PreviousResultsFetcher.fetchPreviousResults()
-        let mainBranchInfo = try await GitHubFetcher.fetchMainBranch()
-        let proposalContentItems = try await GitHubFetcher.fetchProposalContentItems(for: mainBranchInfo.commit.sha)
+        async let previousResults = ignorePreviousResults ? nil : PreviousResultsFetcher.fetchPreviousResults(for: project)
+        let mainBranchInfo = try await GitHubFetcher.fetchMainBranch(for: project)
+        let proposalContentItems = try await GitHubFetcher.fetchProposalContentItems(for: project, sha: mainBranchInfo.commit.sha)
 
         // The proposals/ directory may have subdirectories for
         // proposals from specific workgroups. For now, proposals
