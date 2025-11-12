@@ -98,14 +98,14 @@ extension ExtractionJob {
         // in those subdirectories are filtered out of this proposal
         // specs array.
         let proposalSpecs = proposalContentItems.enumerated().compactMap {
-            $1.proposalSpec(sortIndex: $0)
+            $1.proposalSpec(project: project, sortIndex: $0)
         }
 
         let jobMetadata = JobMetadata(toolVersion: toolVersion, commit: mainBranchInfo.commit.sha, extractionDate: extractionDate)
 
         let snapshot: Snapshot?
         if case let .snapshot(destURL) = output {
-            snapshot = Snapshot(sourceURL: nil, destURL: destURL, proposalListing: proposalContentItems, directoryContents: [], proposalSpecs: [], previousResults: nil, expectedResults: nil, branchInfo: mainBranchInfo, snapshotDate: extractionDate)
+            snapshot = Snapshot(project: project, sourceURL: nil, destURL: destURL, proposalListing: proposalContentItems, directoryContents: [], proposalSpecs: [], previousResults: nil, expectedResults: nil, branchInfo: mainBranchInfo, snapshotDate: extractionDate)
         } else {
             snapshot = nil
         }
@@ -124,7 +124,7 @@ extension ExtractionJob {
  
         verbosePrint("Using local snapshot\n'\(snapshotURL.relativePath)'")
 
-        let sourceSnapshot = try Snapshot(snapshotURL: snapshotURL, destURL: output.snapshotURL, ignorePreviousResults: ignorePreviousResults, extractionDate: extractionDate)
+        let sourceSnapshot = try Snapshot(project: project, snapshotURL: snapshotURL, destURL: output.snapshotURL, ignorePreviousResults: ignorePreviousResults, extractionDate: extractionDate)
 
         let jobMetadata = JobMetadata(toolVersion: toolVersion, commit: sourceSnapshot.branchInfo?.commit.sha, extractionDate: sourceSnapshot.snapshotDate)
                 

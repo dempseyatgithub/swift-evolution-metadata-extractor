@@ -67,9 +67,9 @@ struct GitHubContentItem: Codable {
 
     /// Returns `nil` if this content item corresponds to a
     /// subdirectory instead of a direct proposal document.
-    func proposalSpec(sortIndex: Int) ->  ProposalSpec? {
+    func proposalSpec(project: Project, sortIndex: Int) ->  ProposalSpec? {
         guard let download_url else { return nil }
-        return ProposalSpec(url: URL(string: download_url)!, sha: sha, sortIndex: sortIndex)
+        return ProposalSpec(url: URL(string: download_url)!, sha: sha, project: project, sortIndex: sortIndex)
     }
 }
 
@@ -85,8 +85,8 @@ struct GitHubPullFileItem: Codable {
     var contents_url: String
     var patch: String
     
-    func proposalSpec(sortIndex: Int) ->  ProposalSpec {
-        ProposalSpec(url: URL(string: raw_url)!, sha: sha, sortIndex: sortIndex)
+    func proposalSpec(project: Project, sortIndex: Int) ->  ProposalSpec {
+        ProposalSpec(url: URL(string: raw_url)!, sha: sha, project: project, sortIndex: sortIndex)
     }
 
 }

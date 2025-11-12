@@ -11,6 +11,7 @@ import Foundation
 import EvolutionMetadataModel
 
 struct Snapshot {
+    let project: Project
     let sourceURL: URL?
     let destURL: URL?
     var proposalListing: [GitHubContentItem]? = nil // Ad-hoc snapshots may not have these
@@ -24,7 +25,8 @@ struct Snapshot {
     let temporarySnapshotDirectory: URL?
     let temporaryProposalsDirectory: URL?
     
-    init(sourceURL: URL?, destURL: URL?, proposalListing: [GitHubContentItem]?, directoryContents: [ProposalSpec], proposalSpecs: [ProposalSpec], previousResults: EvolutionMetadata?, expectedResults: EvolutionMetadata?, branchInfo: GitHubBranch?, snapshotDate: Date) {
+    init(project: Project, sourceURL: URL?, destURL: URL?, proposalListing: [GitHubContentItem]?, directoryContents: [ProposalSpec], proposalSpecs: [ProposalSpec], previousResults: EvolutionMetadata?, expectedResults: EvolutionMetadata?, branchInfo: GitHubBranch?, snapshotDate: Date) {
+        self.project = project
         self.sourceURL = sourceURL
         self.destURL = destURL
         self.proposalListing = proposalListing
@@ -44,10 +46,11 @@ struct Snapshot {
         }
     }
 
-    init(snapshotURL: URL, destURL: URL?, ignorePreviousResults: Bool, extractionDate: Date) throws {
+    init(project: Project, snapshotURL: URL, destURL: URL?, ignorePreviousResults: Bool, extractionDate: Date) throws {
         var proposalListingFound = false
         var previousResultsFound = false
-                        
+        
+        self.project = project
         sourceURL = snapshotURL
         let branchInfoURL = snapshotURL.appending(component: "source-info.json")
         let proposalListingURL = snapshotURL.appending(component: "proposal-listing.json")
@@ -70,11 +73,11 @@ struct Snapshot {
             .sorted(by: { $0.lastPathComponent < $1.lastPathComponent })
             .filter { $0.pathExtension == "md"}
             .enumerated()
-            .map { ProposalSpec(url: $1, sha: "", sortIndex: $0) } // try! SHA1.hexForData(Data(contentsOf: $0)))
+            .map { ProposalSpec(url: $1, sha: "", project: project, sortIndex: $0) } // try! SHA1.hexForData(Data(contentsOf: $0)))
 
         if let contentItems = try FileUtilities.decode([GitHubContentItem].self, from: proposalListingURL) {
             proposalListing = contentItems
-            proposalSpecs = contentItems.enumerated().map { ProposalSpec(url: snapshotURL.appending(path: $1.path), sha: $1.sha, sortIndex: $0) }
+            proposalSpecs = contentItems.enumerated().map { ProposalSpec(url: snapshotURL.appending(path: $1.path), sha: $1.sha, project: project, sortIndex: $0) }
             proposalListingFound = true
             if directoryContents.count != proposalSpecs.count {
                 print("WARNING: Number of proposals in proposals directory does not match number of proposals in 'proposal-listing.json")

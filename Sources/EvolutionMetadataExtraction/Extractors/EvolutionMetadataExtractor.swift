@@ -169,13 +169,15 @@ struct EvolutionMetadataExtractor {
 struct ProposalSpec: Sendable {
     let url: URL
     let sha: String
+    let project: Project
     let sortIndex: Int
-    var id: String { "SE-" + url.lastPathComponent.prefix(4) }
+    var id: String { project.projectPrefix + url.lastPathComponent.prefix(4) }
     var filename: String { url.lastPathComponent }
     
-    init(url: URL, sha: String, sortIndex: Int) {
+    init(url: URL, sha: String, project: Project, sortIndex: Int) {
         self.url = url
         self.sha = sha
+        self.project = project
         self.sortIndex = sortIndex
     }
 }
