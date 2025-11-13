@@ -21,6 +21,7 @@ public struct ExtractionJob: Sendable {
     public enum Source: Sendable, Codable, Equatable {
         case network
         case snapshot(URL)
+        case proposalFiles([URL])
     }
     
     public enum Output: Sendable, Codable, Equatable {
@@ -80,6 +81,8 @@ public struct ExtractionJob: Sendable {
                 try await makeNetworkExtractionJob(source: source, output: output, ignorePreviousResults: ignorePreviousResults, forcedExtractionIDs: forcedExtractionIDs, toolVersion: toolVersion, extractionDate: extractionDate)
             case .snapshot:
                 try makeSnapshotExtractionJob(source: source, output: output, ignorePreviousResults: ignorePreviousResults, forcedExtractionIDs: forcedExtractionIDs, toolVersion: toolVersion, extractionDate: extractionDate)
+            case .proposalFiles:
+                try makeProposalFilesExtractionJob(source: source, output: output, ignorePreviousResults: ignorePreviousResults, forcedExtractionIDs: forcedExtractionIDs, toolVersion: toolVersion, extractionDate: extractionDate)
         }
     }
 }
@@ -188,6 +191,22 @@ extension ExtractionJob {
         
         return ExtractionJob(source: source, output: output, branchInfo: branchInfo, proposalListing: proposalListing, proposalSpecs: proposalSpecs, previousResults: previousResults, expectedResults: expectedResults, forcedExtractionIDs: forcedExtractionIDs, toolVersion: toolVersion, extractionDate: snapshotDate)
     }
+    
+    private static func makeProposalFilesExtractionJob(source: Source, output: Output, ignorePreviousResults: Bool, forcedExtractionIDs: [String], toolVersion: String, extractionDate: Date) throws -> ExtractionJob {
+        
+        guard case let .proposalFiles(fileURLs) = source else {
+            fatalError("makeFilepathsExtractionJob() requires an array of file URLs")
+        }
+         
+        let proposalSpecs: [ProposalSpec] = fileURLs
+            .sorted(by: { $0.lastPathComponent < $1.lastPathComponent })
+            .filter { $0.pathExtension == "md"}
+            .enumerated()
+            .map { ProposalSpec(url: $1, sha: "", sortIndex: $0) } // try! SHA1.hexForData(Data(contentsOf: $0)))
+        
+        return ExtractionJob(source: source, output: output, branchInfo: nil, proposalListing: nil, proposalSpecs: proposalSpecs, previousResults: nil, expectedResults: nil, forcedExtractionIDs: forcedExtractionIDs, toolVersion: toolVersion, extractionDate: extractionDate)
+    }
+    
 }
 
 // MARK: - Comparison
@@ -230,7 +249,9 @@ extension ExtractionJob {
                 try ExtractionJob.writeEvolutionResultsAsJSON(results: results, outputURL: outputURL)
             case .snapshot(let outputURL):
                 try writeSnapshot(results: results, outputURL: outputURL)
-            case .validationReport, .none:
+            case .validationReport:
+                print(results.validationReport)
+            case .none:
                 return
         }
     }
