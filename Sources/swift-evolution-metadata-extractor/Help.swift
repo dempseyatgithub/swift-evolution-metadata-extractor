@@ -65,4 +65,22 @@ enum Help {
             Running with no arguments will read from the swift-evolution repository, extract metadata and write an '.evosnapshot' directory to the current directory.
             """
     }
+    
+    enum Validate {
+        static let commandName = "validate"
+        
+        static let usage = """
+        """
+        
+        static let abstract = "Extracts metadata from Swift evolution proposals and generates a validation report."
+        
+        static let discussion =  """
+            Running with no arguments will read from the swift-evolution repository, extract metadata and write a validation report to stdout.
+        """
+        
+        enum Argument {
+            static let forceExtract: ArgumentHelp = "Forces extraction of all or specified proposals. Valid values are 'all' or `SE-XXXX'"
+        }
+    }
+
 }
