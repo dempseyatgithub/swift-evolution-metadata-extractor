@@ -19,12 +19,11 @@ extension EvolutionMetadata {
         }
     }
 
-    var validationReport: String? {
-        get throws {
-            let errorProposals = proposals.filter { $0.hasErrors }
-            let report = errorProposals.reduce(into: "") { $0 += $1.validationReport + "\n\n" }
-            return report
-        }
+    var validationReport: String {
+        let errorProposals = proposals.filter { $0.hasErrors }
+        var report = errorProposals.reduce(into: "") { $0 += $1.validationReport + "\n\n" }
+        report = report.isEmpty ? "No Errors Found" : report
+        return report
     }
 }
 
