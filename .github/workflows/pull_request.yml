@@ -2,8 +2,8 @@ name: Pull request
 
 on:
   pull_request:
-	types: [opened, reopened, synchronize]
-
+    types: [opened, reopened, synchronize]
+	
 jobs:
   soundness:
 	name: Soundness
