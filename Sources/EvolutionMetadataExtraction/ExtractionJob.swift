@@ -150,6 +150,20 @@ extension ExtractionJob {
         return ExtractionJob(output: output, snapshot: nil, proposalSpecs: proposalSpecs, previousResults: nil, forcedExtractionIDs: forcedExtractionIDs, jobMetadata: jobMetadata)
     }
     
+//    private static func makeProposalFilesExtractionJob(source: Source, output: Output, ignorePreviousResults: Bool, forcedExtractionIDs: [String], toolVersion: String, extractionDate: Date) throws -> ExtractionJob {
+//        
+//        guard case let .proposalFiles(fileURLs) = source else {
+//            fatalError("makeFilepathsExtractionJob() requires an array of file URLs")
+//        }
+//         
+//        let proposalSpecs: [ProposalSpec] = fileURLs
+//            .sorted(by: { $0.lastPathComponent < $1.lastPathComponent })
+//            .filter { $0.pathExtension == "md"}
+//            .enumerated()
+//            .map { ProposalSpec(url: $1, sha: "", sortIndex: $0) } // try! SHA1.hexForData(Data(contentsOf: $0)))
+//        
+//        return ExtractionJob(output: output, proposalSpecs: proposalSpecs, previousResults: nil, forcedExtractionIDs: forcedExtractionIDs, toolVersion: toolVersion, extractionDate: extractionDate)
+//    }
 }
 
 // MARK: - Comparison
