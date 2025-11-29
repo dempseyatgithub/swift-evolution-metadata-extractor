@@ -9,6 +9,7 @@
 
 import Foundation
 import EvolutionMetadataModel
+import ArgumentParser
 
 /* The swift-evolution-extraction tool can perform three tasks:
  1. Extract: Extraction of metadata to produce a json file
@@ -224,6 +225,11 @@ extension ExtractionJob {
             let directoryURL = outputURL.deletingLastPathComponent()
             try FileManager.default.createDirectory(at: directoryURL, withIntermediateDirectories: true)
             try data.write(to: outputURL)
+        }
+
+        if results.hasErrors {
+            try FileHandle.standardError.write(contentsOf: Data("Validation Errors Found".utf8))
+            throw ExitCode(EXIT_FAILURE)
         }
     }
     

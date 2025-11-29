@@ -25,6 +25,10 @@ extension EvolutionMetadata {
         report = report.isEmpty ? "No Errors Found" : report
         return report
     }
+
+    var hasErrors: Bool {
+        proposals.contains { $0.hasErrors }
+    }
 }
 
 extension Proposal {
