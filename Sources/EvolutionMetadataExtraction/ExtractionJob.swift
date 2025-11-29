@@ -27,7 +27,7 @@ public struct ExtractionJob: Sendable {
     public enum Output: Sendable, Codable, Equatable {
         case metadataJSON(URL)
         case snapshot(URL)
-        case validationReport
+        case validationReport(URL)
         case none
         
         var snapshotURL: URL? {
@@ -206,10 +206,24 @@ extension ExtractionJob {
                 try ExtractionJob.writeEvolutionResultsAsJSON(results: results, outputURL: outputURL)
             case .snapshot(let outputURL):
                 try writeSnapshot(results: results, outputURL: outputURL)
-            case .validationReport:
-                print(results.validationReport)
+            case .validationReport(let outputURL):
+                try ExtractionJob.writeValidationReport(results: results, outputURL: outputURL)
             case .none:
                 return
+        }
+    }
+    
+    private static func writeValidationReport(results: EvolutionMetadata, outputURL: URL) throws {
+
+        let report = results.validationReport
+
+        if outputURL.isStandardOut {
+            print(report)
+        } else {
+            let data = Data(report.utf8)
+            let directoryURL = outputURL.deletingLastPathComponent()
+            try FileManager.default.createDirectory(at: directoryURL, withIntermediateDirectories: true)
+            try data.write(to: outputURL)
         }
     }
     
@@ -218,23 +232,28 @@ extension ExtractionJob {
         
         let jsonData = try results.jsonRepresentation
         
-        let directoryURL = outputURL.deletingLastPathComponent()
-        try FileManager.default.createDirectory(at: directoryURL, withIntermediateDirectories: true)
-        try jsonData.write(to: outputURL)
+        if outputURL.isStandardOut {
+            let outputString = String(decoding: jsonData, as: UTF8.self)
+            print(outputString)
+        } else {
+            let directoryURL = outputURL.deletingLastPathComponent()
+            try FileManager.default.createDirectory(at: directoryURL, withIntermediateDirectories: true)
+            try jsonData.write(to: outputURL)
+        }
         
         // Temporarily write not found message to proposals.json file
-        let notFoundMessageJSON = """
-            {
-              "message": "Not Found",
-              "reason": "The proposals.json file has been obsoleted and replaced by https://download.swift.org/swift-evolution/v1/evolution.json. See https://forums.swift.org/t/swift-evolution-metadata-transition/71387 for full transition details.",
-              "status": "404"
-            }
-        """
-        
-        let legacyFormatURL = directoryURL.appending(component: "proposals.json")
-        print("Writing file '\(legacyFormatURL.lastPathComponent)' to\n'\(legacyFormatURL.absoluteURL.path())'\n")
-        let notFoundMessageData = Data(notFoundMessageJSON.utf8)
-        try notFoundMessageData.write(to: legacyFormatURL)
+//        let notFoundMessageJSON = """
+//            {
+//              "message": "Not Found",
+//              "reason": "The proposals.json file has been obsoleted and replaced by https://download.swift.org/swift-evolution/v1/evolution.json. See https://forums.swift.org/t/swift-evolution-metadata-transition/71387 for full transition details.",
+//              "status": "404"
+//            }
+//        """
+//        
+//        let legacyFormatURL = directoryURL.appending(component: "proposals.json")
+//        print("Writing file '\(legacyFormatURL.lastPathComponent)' to\n'\(legacyFormatURL.absoluteURL.path())'\n")
+//        let notFoundMessageData = Data(notFoundMessageJSON.utf8)
+//        try notFoundMessageData.write(to: legacyFormatURL)
     }
     
     private func writeSnapshot(results: EvolutionMetadata, outputURL: URL) throws {

@@ -110,3 +110,16 @@ extension URLRequest {
         return logString
     }
 }
+
+// MARK: -
+
+// Using the macOS convention to indicate standard out as a destination
+extension URL {
+    static let stdoutPath = "/dev/stdout"
+    var isStandardOut: Bool {
+        path(percentEncoded: false) == URL.stdoutPath
+    }
+    static var standardOutURL: URL {
+        URL(filePath: URL.stdoutPath, directoryHint: .notDirectory)
+    }
+}

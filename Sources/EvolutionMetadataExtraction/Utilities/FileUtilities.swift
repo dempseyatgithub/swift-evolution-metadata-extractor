@@ -13,6 +13,11 @@ enum FileUtilities {
     
     static func outputURLForPath(_ path: String, defaultFileName: String) -> URL {
         
+        // Handle special standard out output path
+        if path == "stdout" {
+            return URL.standardOutURL
+        }
+        
         var url = expandedAndStandardizedURL(for: path)
         
         // If no path extension, take intent to be a directory and append the default file name

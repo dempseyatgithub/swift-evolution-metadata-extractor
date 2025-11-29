@@ -17,8 +17,8 @@ struct ValidateCommand: AsyncParsableCommand {
         discussion: Help.Validate.discussion
     )
     
-    @Option(name: [.short, .customLong("output-path")], help: Help.Shared.Argument.outputPath, transform: ArgumentValidation.Extract.output)
-    var output: ExtractionJob.Output = ArgumentValidation.Extract.defaultOutput
+    @Option(name: [.short, .customLong("output-path")], help: Help.Shared.Argument.outputPath, transform: ArgumentValidation.Validate.output)
+    var output: ExtractionJob.Output = ArgumentValidation.Validate.defaultOutput
     
     @Flag(name: .shortAndLong, help: Help.Shared.Argument.verbose)
     var verbose: Bool = false
@@ -31,8 +31,8 @@ struct ValidateCommand: AsyncParsableCommand {
     @Option(name: .customLong("snapshot-path"), help: Help.Shared.Argument.snapshotPath, transform: ArgumentValidation.extractionSource)
     var extractionSource: ExtractionJob.Source = .network
     
-    @Option var basePath: String
-    @Argument var filenames: [String]
+//    @Option var basePath: String?
+    @Argument var filenames: [String] = []
 
     
     mutating func validate() throws {
@@ -43,10 +43,11 @@ struct ValidateCommand: AsyncParsableCommand {
 
     
     func run() async throws {
-        let baseURL = URL(filePath: basePath)
-        let fileURLs = filenames.map { baseURL.appending(path: $0)}
+//        let baseURL = URL(filePath: basePath)
+        let fileURLs = filenames.map { URL(filePath: $0) }
         let source: ExtractionJob.Source = .proposalFiles(fileURLs)
-        let extractionJob = try await ExtractionJob.makeExtractionJob(from: source, output: .validationReport, ignorePreviousResults: forceAll, forcedExtractionIDs: forcedExtractionIDs)
+//        let source = extractionSource
+        let extractionJob = try await ExtractionJob.makeExtractionJob(from: source, output: output, ignorePreviousResults: forceAll, forcedExtractionIDs: forcedExtractionIDs)
         try await extractionJob.run()
     }
 }

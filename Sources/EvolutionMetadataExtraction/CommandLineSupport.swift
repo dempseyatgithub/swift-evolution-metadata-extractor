@@ -80,6 +80,17 @@ public enum ArgumentValidation {
         return .snapshot(snapshotURL)
     }
     
+    public enum Validate {
+        public static let defaultFilename = "validation-report.md"
+        public static let defaultOutput: ExtractionJob.Output = .validationReport(URL.standardOutURL)
+        
+        // Transforms --output--path argument into an output value
+        @Sendable public static func output(_ outputPath: String) throws -> ExtractionJob.Output {
+            if outputPath == "none" { .none }
+            else { .validationReport(FileUtilities.outputURLForPath(outputPath, defaultFileName: defaultFilename)) }
+        }
+    }
+    
     public enum Extract {
         
         public static let defaultFilename = "evolution.json"
@@ -126,8 +137,9 @@ public enum ArgumentValidation {
 
         // Transforms --output--path argument into an output value
         @Sendable public static func output(_ outputPath: String) throws -> ExtractionJob.Output {
-            if outputPath == "none" { .none }
-            else { .snapshot(FileUtilities.outputURLForPath(outputPath, defaultFileName: defaultFilename)) }
+            precondition(outputPath != "stdout") // stdout is not a valid snapshot output option
+            if outputPath == "none" { return .none }
+            else { return .snapshot(FileUtilities.outputURLForPath(outputPath, defaultFileName: defaultFilename)) }
         }
     }
 }
