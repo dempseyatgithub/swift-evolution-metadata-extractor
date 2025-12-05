@@ -10,5 +10,5 @@ jobs:
     uses: swiftlang/github-workflows/.github/workflows/soundness.yml@main
     with:
       license_header_check_project_name: "Swift.org"
-      format_check_enabled: false
-      unacceptable_language_check_word_list: "blacklist whitelist slave sane sanity insane insanity"  # ignore-unacceptable-language
+      # Test files include all swift-evolution proposals, many of which contain words on this list
+      unacceptable_language_check_enabled: false
