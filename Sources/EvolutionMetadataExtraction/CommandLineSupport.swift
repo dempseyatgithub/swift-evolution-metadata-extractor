@@ -32,8 +32,9 @@ public enum ArgumentValidation {
         precondition(verboseEnabled == verbose)
     }
     
+    // Reads and validates HTTP Proxy environment variables if present
     public static func validateHTTPProxies() {
-        _ = URLSession.customized // Reads and validates HTTP Proxy environment variables if present
+        _ = URLSession.customized
     }
     
     // Transforms snapshot-path argument into .snapshot(URL) extraction source
