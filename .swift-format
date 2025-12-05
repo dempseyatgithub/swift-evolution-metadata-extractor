@@ -4,6 +4,8 @@
     "indentation": {
         "spaces": 4
     },
+    "multiElementCollectionTrailingCommas": false,
+    "indentBlankLines": true,
     "rules": {
         "AlwaysUseLowerCamelCase": false,
         "NoBlockComments": false,
