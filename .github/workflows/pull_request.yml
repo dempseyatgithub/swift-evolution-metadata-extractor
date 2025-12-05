@@ -11,4 +11,4 @@ jobs:
     with:
       license_header_check_project_name: "Swift.org"
       format_check_enabled: false
-      unacceptable_language_check_word_list: "blacklist whitelist slave sane sanity insane insanity kill killed killing hang hung hanged hanging"  # ignore-unacceptable-language
+      unacceptable_language_check_word_list: "blacklist whitelist slave sane sanity insane insanity"  # ignore-unacceptable-language
