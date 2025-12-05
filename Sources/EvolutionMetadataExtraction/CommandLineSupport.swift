@@ -9,6 +9,10 @@
 import Foundation
 import ArgumentParser
 
+#if canImport(FoundationNetworking)
+import FoundationNetworking // Required on Linux
+#endif
+
 // Set once in `validate(verbose:)`, read once for `verboseEnabled`.
 nonisolated(unsafe) private var VERBOSE_ENABLED: Bool = false
 func verbosePrint(_ items: Any..., additionalCondition: Bool = true, separator: String = " ", terminator: String = "\n\n") {
@@ -36,10 +40,18 @@ public enum ArgumentValidation {
     public static func validateHTTPProxies() {
         _ = URLSession.customized
     }
-    
-    // Transforms snapshot-path argument into .snapshot(URL) extraction source
-    @Sendable public static func extractionSource(_ snapshotPath: String) throws -> ExtractionJob.Source {
-        
+
+    @Sendable public static func extractionSource(snapshotURL: URL?) throws -> ExtractionJob.Source {
+        if let snapshotURL {
+            return .snapshot(snapshotURL)
+        } else {
+            return .network
+        }
+    }
+
+    // Transforms snapshot-path argument into URL
+    @Sendable public static func snapshotURL(_ snapshotPath: String) throws -> URL {
+
         let snapshotURL: URL
         
         // Check for value 'default' or 'malformed' to use the AllProposals or Malformed snapshot in the test bundle
@@ -78,7 +90,7 @@ public enum ArgumentValidation {
         } catch {
             throw ValidationError("Snapshot must be a directory with 'evosnapshot' extension")
         }
-        return .snapshot(snapshotURL)
+        return snapshotURL
     }
     
     public enum Extract {
@@ -116,7 +128,7 @@ public enum ArgumentValidation {
         // Transforms --output--path argument into an output value
         @Sendable public static func output(_ outputPath: String) throws -> ExtractionJob.Output {
             if outputPath == "none" { .none }
-            else { .metadataJSON(FileUtilities.outputURLForPath(outputPath, defaultFileName: defaultFilename)) }
+            else { .metadataJSON(FileUtilities.outputURL(for: outputPath, defaultFileName: defaultFilename)) }
         }
     }
     
@@ -128,7 +140,8 @@ public enum ArgumentValidation {
         // Transforms --output--path argument into an output value
         @Sendable public static func output(_ outputPath: String) throws -> ExtractionJob.Output {
             if outputPath == "none" { .none }
-            else { .snapshot(FileUtilities.outputURLForPath(outputPath, defaultFileName: defaultFilename)) }
+            else if outputPath == "stdout" { throw ValidationError("The output path 'stdout' is not valid for the snapshot command")}
+            else { .snapshot(FileUtilities.outputURL(for: outputPath, defaultFileName: defaultFilename)) }
         }
     }
 }

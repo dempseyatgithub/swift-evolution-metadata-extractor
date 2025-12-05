@@ -10,9 +10,14 @@ import Foundation
 
 enum FileUtilities {
     
-    static func outputURLForPath(_ path: String, defaultFileName: String) -> URL {
-        
-        var url = expandedAndStandardizedURL(for: path)
+    static func outputURL(for outputPath: String, defaultFileName: String) -> URL {
+
+        // If 'stdout' is passed in as output path, return standard out URL
+        if outputPath == "stdout" {
+            return URL.standardOutURL
+        }
+
+        var url = expandedAndStandardizedURL(for: outputPath)
         
         // If no path extension, take intent to be a directory and append the default file name
         if url.pathExtension.isEmpty {

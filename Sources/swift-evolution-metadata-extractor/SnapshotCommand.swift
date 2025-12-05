@@ -18,19 +18,20 @@ struct SnapshotCommand: AsyncParsableCommand {
         discussion: Help.Snapshot.discussion
     )
     
-    @Option(name: [.short, .customLong("output-path")], help: Help.Shared.Argument.outputPath, transform: ArgumentValidation.Snapshot.output)
+    @Option(name: [.short, .customLong("output-path")], help: Help.Snapshot.Argument.outputPath, transform: ArgumentValidation.Snapshot.output)
     var output: ExtractionJob.Output = ArgumentValidation.Snapshot.defaultOutput
     
-    @Flag(name: .shortAndLong, help: Help.Shared.Argument.verbose)
-    var verbose: Bool = false
-    
-    @Option(name: .customLong("snapshot-path"), help: Help.Shared.Argument.snapshotPath, transform: ArgumentValidation.extractionSource)
+    @Option(name: .customLong("snapshot-path"), help: Help.Shared.Argument.snapshotPath, transform: ArgumentValidation.snapshotURL)
+    var snapshotURL: URL?
     var extractionSource: ExtractionJob.Source = .network
 
+    @Flag(name: .shortAndLong, help: Help.Shared.Argument.verbose)
+    var verbose: Bool = false
 
     mutating func validate() throws {
         ArgumentValidation.validate(verbose: verbose)
         ArgumentValidation.validateHTTPProxies()
+        extractionSource = try ArgumentValidation.extractionSource(snapshotURL: snapshotURL)
     }
 
 
