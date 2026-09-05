@@ -78,29 +78,20 @@ extension Proposal {
             report += "\n\n"
 
             if hasErrors, let errors {
-                report += issuesReport(heading: nil, issues: errors)
+                report += issuesReport(issues: errors)
             }
             if hasErrors && hasWarnings {
                 report += "\n"
             }
             if hasWarnings, let warnings {
-                report += issuesReport(heading: nil, issues: warnings)
+                report += issuesReport(issues: warnings)
             }
         }
         return report
     }
 
-    private func issuesReport(heading: String?, issues: [Proposal.Issue]) -> String {
-        var report: String
-        if let heading { report = "\t\(heading)\n" }
-        else { report = "" }
-        for issue in issues {
-            report += "\t\(issue.kindLabel): \(issue.message)\n"
-            if !issue.suggestion.isEmpty {
-                report += "\n\t\(issue.suggestion.replacingOccurrences(of: "\n", with: "\n\t"))\n"
-            }
-        }
-        return report
+    private func issuesReport(issues: [Proposal.Issue]) -> String {
+        issues.reduce(into: "") { $0 += $1.validationReport(indentLevel: 1) }
     }
 }
 
@@ -112,5 +103,14 @@ extension Proposal.Issue {
             case .error: "ERROR"
             case .warning: "WARNING"
         }
+    }
+
+    func validationReport(indentLevel: Int = 0) -> String {
+        let indent = String(repeating: "\t", count: indentLevel)
+        var result = indent + "\(kindLabel): \(message)\n"
+        if !suggestion.isEmpty {
+            result += "\n\(indent)\t\(suggestion.replacingOccurrences(of: "\n", with: "\n\(indent)"))\n"
+        }
+        return result
     }
 }
